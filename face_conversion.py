@@ -2,6 +2,13 @@ import requests, json
 from config import KAKAO_REST_KEY
 import time
 import random
+import sys
+import argparse
+import requests
+import cv2
+import numpy as np
+import math
+from PIL import Image, ImageFilter
 
 '''
 Returns a json object that contains the face infos in image.
@@ -38,6 +45,26 @@ def download_image(url):
     with open("./static/{}".format(fileName), 'wb') as f:
         f.write(response.content)
     return fileName
-    
 
-detect_face("https://img.hankyung.com/photo/201912/2019122820250418689-540x360.jpg")    
+
+def convert_image(url):
+    filename = "./static/"+download_image(url)
+    face_json = detect_face(url)
+    image = Image.open(filename)
+    subimg = Image.open('cat.png')
+    for face in face_json['result']['faces']:
+        x = int(face['x']*image.width)
+        w = int(face['w']*image.width)
+        y = int(face['y']*image.height)
+        h = int(face['h']*image.height)
+        pitch = float(face['pitch'])
+        yaw = float(face['yaw'])
+        roll = float(face['roll'])
+
+        box = subimg.resize((int(w*1.5),int(h*1.5)),Image.NEAREST)
+        box = box.rotate(roll / (np.pi/180))
+        image.paste(box, (x-int(w*0.5/2),y-int(h*0.5/2)), box)
+    
+    image.save(filename)
+
+convert_image("https://lh3.googleusercontent.com/proxy/MoN5DkAH3DPfqIv93pz3_elBytI62Nl_j8W_XceZjKFP7qzP0CyAo4XJiObu_AeQ1oIPXzMXE2uL9hkEazACSIqGO260LZVVqIPm4F-1-dlkCBeSbdpqkDX6seGiDz0oVrpjSt2bkC8")
