@@ -48,7 +48,7 @@ def download_image(url):
 
 
 def convert_image(url):
-    filename = "./static/"+download_image(url)
+    filename = "static/"+download_image(url)
     face_json = detect_face(url)
     image = Image.open(filename)
     subimg = Image.open('cat.png')
@@ -66,5 +66,4 @@ def convert_image(url):
         image.paste(box, (x-int(w*0.5/2),y-int(h*0.5/2)), box)
     
     image.save(filename)
-
-convert_image("https://lh3.googleusercontent.com/proxy/MoN5DkAH3DPfqIv93pz3_elBytI62Nl_j8W_XceZjKFP7qzP0CyAo4XJiObu_AeQ1oIPXzMXE2uL9hkEazACSIqGO260LZVVqIPm4F-1-dlkCBeSbdpqkDX6seGiDz0oVrpjSt2bkC8")
+    return filename
