@@ -20,11 +20,19 @@ def parse_and_convert(content, level):
             if (tag == None): continue
             else:
                 src = tag.get("src")
+                if (src is None):
+                    continue
+                if (src.startswith("//")):
+                    src = "https:" + src
                 path = convert_image(src)
-                tag["src"] = baseURL + path
+                if (path is not None):
+                    tag["src"] = path
                 result[i]= str(tag)
 
         else:
+            prevElement = result[i-1]
+            if prevElement.startswith("<script"):
+                continue
             if (level == 5):
                 element = re.sub("[^.!?\s]","냥",element)
                 element = re.sub("[.!?]","냥🐾", element)
@@ -55,6 +63,6 @@ def parse_and_convert(content, level):
             if (level >= 2):
                 element = re.sub("요?[.!?]","냥🐾", element)
             if (level == 1):
-                element = re.sub(".","🐾", element)
+                element = re.sub("(다[.])","다🐾", element)
             result[i] = element
     return ''.join(result)
