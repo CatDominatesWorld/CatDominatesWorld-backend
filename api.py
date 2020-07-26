@@ -11,10 +11,13 @@ def hello_world():
 @app.route('/translate', methods=['POST'])
 def translateHTML():
     content = request.json['content']
-    level = request.json('level')
+    #level = request.json['level']
+    level = 1
+    with open('convert.html', 'w') as f:
+        f.write(parse_and_convert(content,level))
     response = make_response(parse_and_convert(content,level), 200)
     response.mimetype = "text/plain"
     return response
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0', debug=True, port=443, ssl_context=('cert.pem', 'key.pem'))
