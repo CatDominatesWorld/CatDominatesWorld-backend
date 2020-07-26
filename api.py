@@ -1,7 +1,10 @@
 from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS, cross_origin
 from nyanTranslate import parse_and_convert
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route('/')
 def hello_world():
@@ -12,7 +15,7 @@ def hello_world():
 def translateHTML():
     content = request.json['content']
     #level = request.json['level']
-    level = 1
+    level = 3
     with open('convert.html', 'w') as f:
         f.write(parse_and_convert(content,level))
     response = make_response(parse_and_convert(content,level), 200)
