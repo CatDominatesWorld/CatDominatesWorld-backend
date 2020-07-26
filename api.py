@@ -16,8 +16,6 @@ def translateHTML():
     content = request.json['content']
     #level = request.json['level']
     level = 3
-    with open('convert.html', 'w') as f:
-        f.write(parse_and_convert(content,level))
     response = make_response(parse_and_convert(content,level), 200)
     response.mimetype = "text/plain"
     return response
