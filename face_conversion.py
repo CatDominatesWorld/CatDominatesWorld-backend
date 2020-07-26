@@ -49,6 +49,7 @@ def img_to_data(output, contentType):
 
 
 def convert_image(url):
+    contentTypeToFormat = {"image/jpeg":"JPEG", "image/png":"PNG"}
     content, contentType = download_image(url)
     if (content is None):
         return None
@@ -71,5 +72,5 @@ def convert_image(url):
         image.paste(box, (x-int(w*0.5/2),y-int(h*0.5/2)), box)
     
     output = io.BytesIO()
-    image.save(output)
-    return img_to_data(output, contentType)
+    image.save(output, contentTypeToFormat[contentType])
+    return img_to_data(output.getvalue(), contentType)
