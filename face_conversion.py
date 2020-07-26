@@ -10,75 +10,50 @@ import numpy as np
 import math
 from PIL import Image, ImageFilter
 from urllib.request import urlopen
-import base64, mimetypes, os
+import urllib
+import base64, os
+import io
 
 '''
 Returns a json object that contains the face infos in image.
 Refer https://developers.kakao.com/docs/latest/ko/vision/dev-guide#recog-face
 for more details.
+Input is the bytearray of an image content.
 '''
-def detectFace(path):
+def detectFace(content):
     API_URL = 'https://kapi.kakao.com/v1/vision/face/detect'
     headers = {'Authorization': 'KakaoAK {}'.format(KAKAO_REST_KEY)}
-    files = { 'file' : open(path, 'rb')}
+    files = { 'file' : content }
     response = requests.post(API_URL, headers=headers, files=files)
-    return (response.json())
+    return response.json()
 
 
-'''
-Save image at static directory. Return the random-generated filename.
-'''
-def saveImage(content, imageType):
-    # Randomly generate filename
-    timestamp = int(time.time())
-    randomString = int(random.random()*1E9)
-    fileName = "{:d}-{:d}.{:s}".format(timestamp, randomString, imageType)
-    with open("./static/{}".format(fileName), 'wb') as f:
-        f.write(content)
-    return fileName
-
-'''
-Downloads an image from url
-'''
+''' Downloads an image from url '''
 def download_image(url):
     try:
         with urlopen(url) as response:
             data = response.read()
             contentType = response.info().get_content_type()
-        
-        if (contentType == "image/png"):
-            imageType = "png"
-        elif (contentType == "image/jpeg"):
-            imageType = "jpg"
-        else:
-            return None
-
-        return saveImage(data, imageType)
-    except ValueError:
+        if (contentType not in ["image/png", "image/jpeg"]):
+            return None, None
+        return data, contentType
+    except (ValueError, urllib.error.HTTPError):
         print("Image download failed {}".format(url))
-        return None
+        return None, None
 
-"""Convert a file (specified by a path) into a data URI."""
-def img_to_data(path):
-    if not os.path.exists(path):
-        raise FileNotFoundError
-    mime, _ = mimetypes.guess_type(path)
-    print(mime)
-    with open(path, 'rb') as fp:
-        data = fp.read()
-        data64 = (base64.b64encode(data)).decode("utf-8")
-        return "data:{};base64,{}".format(mime, data64)
+
+''' Convert a file (specified by a path) into a data URI '''
+def img_to_data(output, contentType):
+    data64 = (base64.b64encode(output)).decode("utf-8")
+    return "data:{};base64,{}".format(contentType, data64)
 
 
 def convert_image(url):
-    if (url is None):
+    content, contentType = download_image(url)
+    if (content is None):
         return None
-    name = download_image(url)
-    if (name is None):
-        return None
-    filename = "static/" + name
-    face_json = detectFace(filename)
-    image = Image.open(filename)
+    face_json = detectFace(content)
+    image = Image.open(io.BytesIO(content))
     subimg = Image.open('cat.png')
     if 'faces' not in face_json['result'].keys():
         return None
@@ -95,5 +70,6 @@ def convert_image(url):
         box = box.rotate(roll / (np.pi/180))
         image.paste(box, (x-int(w*0.5/2),y-int(h*0.5/2)), box)
     
-    image.save(filename)
-    return img_to_data(filename)
+    output = io.BytesIO()
+    image.save(output)
+    return img_to_data(output, contentType)

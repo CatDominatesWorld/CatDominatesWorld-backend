@@ -15,6 +15,7 @@ def parse_and_convert(content, level):
         if (element == ""):
             continue
         if (element[0] == "<"):
+            ''' Handle image '''
             soup = BeautifulSoup(element, 'html.parser')
             tag = soup.img
             if (tag == None): continue
@@ -30,6 +31,7 @@ def parse_and_convert(content, level):
                 result[i]= str(tag)
 
         else:
+            ''' Handle text '''
             prevElement = result[i-1]
             if prevElement.startswith("<script"):
                 continue
