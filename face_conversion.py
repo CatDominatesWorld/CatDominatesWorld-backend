@@ -52,7 +52,6 @@ def img_to_data(output, contentType):
 Select image from pitch and yaw value
 '''
 def angle(pitch, yaw):
-    print(pitch, yaw)
     cat='error'
     if pitch>-0.5 and pitch<0.5:
         if yaw>-0.35 and yaw<0.35:
@@ -83,7 +82,6 @@ def angle(pitch, yaw):
 
 
 def convert_image(url):
-    print(url)
     contentTypeToFormat = {"image/jpeg":"JPEG", "image/png":"PNG"}
     content, contentType = download_image(url)
     if (content is None):
