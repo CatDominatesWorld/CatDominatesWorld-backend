@@ -33,7 +33,7 @@ def parse_and_convert(content, level):
         else:
             ''' Handle text '''
             prevElement = result[i-1]
-            if prevElement.startswith("<script"):
+            if prevElement.startswith("<script") or prevElement.startswith("<style"):
                 continue
             if (level == 5):
                 element = re.sub("[^.!?\s]","냥",element)
