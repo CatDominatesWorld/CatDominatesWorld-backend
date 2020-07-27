@@ -48,14 +48,49 @@ def img_to_data(output, contentType):
     return "data:{};base64,{}".format(contentType, data64)
 
 
+'''
+Select image from pitch and yaw value
+'''
+def angle(pitch, yaw):
+    print(pitch, yaw)
+    cat='error'
+    if pitch>-0.5 and pitch<0.5:
+        if yaw>-0.35 and yaw<0.35:
+            cat='front.PNG'
+        elif yaw>=0.35 and yaw<0.75:
+            cat='half-right.PNG'
+        elif yaw>=0.75 and yaw<=1:
+            cat='right.PNG'
+        elif yaw<=-0.75:
+            cat='left.PNG'
+        elif yaw>-0.75 and yaw<=-0.35:
+            cat='half-left.PNG'
+    elif pitch>=0.5 and pitch<=1:
+        if yaw>-0.35 and yaw<0.35:
+            cat='up.PNG'
+        elif yaw>=0.35 and yaw<=1:
+            cat='half-up-right.PNG'
+        elif yaw<=-0.35:
+            cat='half-up-left.PNG'
+    elif pitch<=-0.5 and pitch>=-1:
+        if yaw>-0.35 and yaw<0.35:
+            cat='down.PNG'
+        elif yaw>=0.35 and yaw<=1:
+            cat='half-down-right.PNG'
+        elif yaw<=-0.35:
+            cat='half-down-left.PNG'
+    return cat
+
+
 def convert_image(url):
+    print(url)
     contentTypeToFormat = {"image/jpeg":"JPEG", "image/png":"PNG"}
     content, contentType = download_image(url)
     if (content is None):
         return None
     face_json = detectFace(content)
     image = Image.open(io.BytesIO(content))
-    subimg = Image.open('cat.png')
+    #subimg = Image.open('cat.png')
     if 'faces' not in face_json['result'].keys():
         return None
     for face in face_json['result']['faces']:
@@ -66,10 +101,12 @@ def convert_image(url):
         pitch = float(face['pitch'])
         yaw = float(face['yaw'])
         roll = float(face['roll'])
-
-        box = subimg.resize((int(w*1.5),int(h*1.5)),Image.NEAREST)
+        subimg = Image.open('asset/'+angle(pitch, yaw))
+        # box = subimg.resize((w,h),Image.NEAREST)
+        box = subimg.resize((int(w*2.5),int(h*2.5)))
         box = box.rotate(roll / (np.pi/180))
-        image.paste(box, (x-int(w*0.5/2),y-int(h*0.5/2)), box)
+        # image.paste(box, (x,y), box)
+        image.paste(box, (x-int(w*1.5/2),y-int(h*2/2)), box)
     
     output = io.BytesIO()
     image.save(output, contentTypeToFormat[contentType])
