@@ -123,6 +123,7 @@ def parse_and_convert(content, level, url):
             continue
         if (element[0] == "<"):
             ''' Handle image '''
+            if (level <= 3): continue
             soup = BeautifulSoup(element, 'html.parser')
             tag = soup.img
             if (tag == None): continue
