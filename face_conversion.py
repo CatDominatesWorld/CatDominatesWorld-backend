@@ -99,7 +99,11 @@ def convert_image(url):
         pitch = float(face['pitch'])
         yaw = float(face['yaw'])
         roll = float(face['roll'])
-        subimg = Image.open('asset/'+angle(pitch, yaw))
+        name = angle(pitch, yaw)
+        if (name == 'error'):
+            print("Face detection error :{}".format(url))
+            return None
+        subimg = Image.open('asset/'+name)
         # box = subimg.resize((w,h),Image.NEAREST)
         box = subimg.resize((int(w*2.5),int(h*2.5)))
         box = box.rotate(roll / (np.pi/180))
