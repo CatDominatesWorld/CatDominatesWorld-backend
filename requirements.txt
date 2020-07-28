@@ -1,0 +1,9 @@
+nltk==3.5
+numpy==1.13.3
+konlpy==0.5.2
+requests==2.18.4
+Flask_Cors==3.0.8
+langdetect==1.0.8
+Flask==1.1.2
+beautifulsoup4==4.9.1
+Pillow==7.2.0
