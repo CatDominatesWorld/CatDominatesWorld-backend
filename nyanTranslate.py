@@ -3,7 +3,6 @@ import re
 from konlpy.tag import Mecab
 import nltk
 from face_conversion import convert_image
-from config import baseURL
 from urllib.parse import urljoin
 
 mecab = Mecab()
