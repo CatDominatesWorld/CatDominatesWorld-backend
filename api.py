@@ -13,6 +13,7 @@ def hello_world():
 
 @app.route('/translate', methods=['POST'])
 def translateHTML():
+    print("Handling an response...")
     content = request.json['content']
     level = request.json['level']
     url = request.json['url']
