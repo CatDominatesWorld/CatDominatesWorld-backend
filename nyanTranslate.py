@@ -57,10 +57,18 @@ def textConvertKor(element, level):
 def wordToMeow(word):
     if (word == ""):
         return word
-    meowCount = math.ceil(len(word) / 4)
-    newWord = "meow"*meowCount
-    if word[0].isupper():
-        newWord = newWord.capitalize()
+    punctuationSplit = re.split('(\W)', word)
+    for i in range (len(punctuationSplit)):
+        token = punctuationSplit[i]
+        if (token == ""): continue
+        if (re.match('\W', token)) is not None:
+            continue
+        meowCount = math.ceil(len(token) / 4)
+        newToken = "meow"*meowCount
+        if token[0].isupper():
+            newToken = newToken.capitalize()
+        punctuationSplit[i] = newToken
+    newWord = ''.join(punctuationSplit)
     return newWord
 
 def textConvertEng(element, level):
