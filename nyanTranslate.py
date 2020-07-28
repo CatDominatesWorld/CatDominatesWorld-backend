@@ -4,10 +4,12 @@ from konlpy.tag import Mecab
 import nltk
 from face_conversion import convert_image
 from urllib.parse import urljoin
+from langdetect import detect, lang_detect_exception
+import math
 
 mecab = Mecab()
 
-def textConvert(element, level):
+def textConvertKor(element, level):
     postPositionDict = {"를": "을", "가":"이", "라면":"이라면", "는":"은", "와":"과", "로써":"으로써", "로":"으로"}
     if (level == 5):
         ''' Replace everything to 냥 '''
@@ -52,6 +54,58 @@ def textConvert(element, level):
     return element
 
 
+def wordToMeow(word):
+    if (word == ""):
+        return word
+    meowCount = math.ceil(len(word) / 4)
+    newWord = "meow"*meowCount
+    if word[0].isupper():
+        newWord = newWord.capitalize()
+    return newWord
+
+def textConvertEng(element, level):
+    if (level == 5):
+        tokens = re.split("(\s)", element)
+        for i in range (len(tokens)):
+            token = tokens[i]
+            if token.isspace():
+                continue
+            tokens[i] = wordToMeow(token)
+        element = ''.join(tokens)
+    
+    if (5 > level >= 3):
+        pos = nltk.pos_tag(nltk.word_tokenize(element))
+        posind = 0
+        elemind = 0
+        elemIndPrev = 0
+        newElement = ""
+        while (elemind < len(element)):
+            if (posind == len(pos)):
+                elemind += 1
+                continue
+            word = pos[posind][0]
+            if element.startswith(word, elemind):
+                if (elemIndPrev != elemind):
+                    newElement += element[elemIndPrev:elemind]
+                elemind += len(word)
+                wordType = pos[posind][1]
+                if (wordType in ["NN", "NNS", "NNP", "NNPS", "PRP"]):
+                    word = wordToMeow(word)
+                newElement += word
+                posind += 1
+                elemIndPrev = elemind
+            else:
+                elemind += 1
+        newElement += element[elemIndPrev:elemind]
+        element = newElement
+
+    if (level >= 2):
+        element = re.sub("[.!?]","🐾", element)
+    if (level == 1):
+        element = re.sub("[.]","🐾", element)
+    return element
+
+
 def parse_and_convert(content, level, url):
     content = content.replace('\n','')
     result = list(re.split("(</?[^<>]*>)", content))
@@ -82,6 +136,15 @@ def parse_and_convert(content, level, url):
             prevElement = result[i-1]
             if prevElement.startswith("<script") or prevElement.startswith("<style"):
                 continue
-            result[i] = textConvert(element, level)
+            try:
+                detectResult = detect(element)
+                if detectResult == 'en':
+                    result[i] = textConvertEng(element, level)
+                elif detectResult == 'ko':
+                    result[i] = textConvertKor(element, level)
+                else:
+                    continue
+            except lang_detect_exception.LangDetectException:
+                continue         
     
     return ''.join(result)
