@@ -14,9 +14,9 @@ def hello_world():
 @app.route('/translate', methods=['POST'])
 def translateHTML():
     content = request.json['content']
-    #level = request.json['level']
-    level = 3
-    response = make_response(parse_and_convert(content,level), 200)
+    level = request.json['level']
+    url = request.json['url']
+    response = make_response(parse_and_convert(content,level, url), 200)
     response.mimetype = "text/plain"
     return response
 

@@ -4,6 +4,7 @@ from konlpy.tag import Mecab
 import nltk
 from face_conversion import convert_image
 from config import baseURL
+from urllib.parse import urljoin
 
 mecab = Mecab()
 
@@ -52,7 +53,7 @@ def textConvert(element, level):
     return element
 
 
-def parse_and_convert(content, level):
+def parse_and_convert(content, level, url):
     content = content.replace('\n','')
     result = list(re.split("(</?[^<>]*>)", content))
     for i in range(len(result)):
@@ -70,6 +71,8 @@ def parse_and_convert(content, level):
                     continue
                 if (src.startswith("//")):
                     src = "https:" + src
+                elif ((not src.startswith("data")) and (not src.startswith("http"))):
+                    src = urljoin(url, src)
                 path = convert_image(src)
                 if (path is not None):
                     tag["src"] = path
